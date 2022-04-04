@@ -53,6 +53,7 @@ public:
     bool requiresDisplayRefreshCallback();
     void dispatchDisplayRefreshCallback();
     void invalidate();
+    Seconds missedRefreshTime() const;
 
     void setTargetRefreshRate(unsigned);
 
@@ -67,6 +68,7 @@ private:
     Client* m_client;
     unsigned m_targetRefreshRate;
     WebCore::DisplayUpdate m_currentUpdate;
+    MonotonicTime m_refreshTime;
 };
 
 } // namespace WebKit

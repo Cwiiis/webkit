@@ -76,6 +76,7 @@ public:
     RefPtr<WebCore::DisplayRefreshMonitor> displayRefreshMonitor(WebCore::PlatformDisplayID);
 
     void frameComplete();
+    bool lastFrameOverBudget() const { return m_frameOverBudget; }
     void targetRefreshRateDidChange(unsigned);
 
     void suspend();
@@ -99,6 +100,8 @@ private:
     uintptr_t m_nativeSurfaceHandle;
     WebCore::TextureMapper::PaintFlags m_paintFlags { 0 };
     unsigned m_suspendedCount { 0 };
+    Seconds m_maxFrameDelay { 0_s };
+    bool m_frameOverBudget { false };
 
     std::unique_ptr<CompositingRunLoop> m_compositingRunLoop;
 

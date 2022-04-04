@@ -66,6 +66,14 @@ ThreadedCompositor::ThreadedCompositor(Client& client, ThreadedDisplayRefreshMon
         m_attributes.needsResize = !viewportSize.isEmpty();
     }
 
+    if (const char* maxFrameDelayString = getenv("WEBKIT_MAX_FRAME_DELAY_MS")) {
+        int maxFrameDelayMs;
+        if ((sscanf(maxFrameDelayString, "%d", &maxFrameDelayMs) == 1) && maxFrameDelayMs >= 0)
+            m_maxFrameDelay = Seconds::fromMilliseconds(maxFrameDelayMs);
+        else
+            WTFLogAlways("Malformed WEBKIT_MAX_FRAME_DELAY_MS string");
+    }
+
     m_compositingRunLoop->performTaskSync([this, protectedThis = Ref { *this }] {
         m_scene = adoptRef(new CoordinatedGraphicsScene(this));
         m_nativeSurfaceHandle = m_client.nativeSurfaceHandleForCompositing();
@@ -240,6 +248,14 @@ void ThreadedCompositor::renderLayerTree()
     m_scene->paintToCurrentGLContext(viewportTransform, FloatRect { FloatPoint { }, viewportSize }, m_paintFlags);
 
     m_context->swapBuffers();
+
+    // Immediately schedule an update if the previous frame went over budget
+    auto missedRefreshTime = m_displayRefreshMonitor->missedRefreshTime();
+    if (missedRefreshTime > 0_s && missedRefreshTime < m_maxFrameDelay && m_displayRefreshMonitor->requiresDisplayRefreshCallback()) {
+        //WTFLogAlways("Missed refresh time: %.2lfms max frame delay: %.2lfms", missedRefreshTime.milliseconds(), m_maxFrameDelay.milliseconds());
+        m_frameOverBudget = true;
+    } else
+        m_frameOverBudget = false;
 
     if (m_scene->isActive())
         m_client.didRenderFrame();

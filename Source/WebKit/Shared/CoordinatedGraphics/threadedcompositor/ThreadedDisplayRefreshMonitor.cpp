@@ -45,6 +45,7 @@ ThreadedDisplayRefreshMonitor::ThreadedDisplayRefreshMonitor(WebCore::PlatformDi
     , m_client(&client)
     , m_targetRefreshRate(defaultRefreshRate)
     , m_currentUpdate({ 0, m_targetRefreshRate / 1000 })
+    , m_refreshTime(MonotonicTime::now())
 {
 #if USE(GLIB_EVENT_LOOP)
     m_displayRefreshTimer.setPriority(RunLoopSourcePriority::DisplayRefreshMonitorTimer);
@@ -83,6 +84,7 @@ void ThreadedDisplayRefreshMonitor::dispatchDisplayRefreshCallback()
 {
     if (!m_client)
         return;
+    m_refreshTime = MonotonicTime::now();
     m_displayRefreshTimer.startOneShot(0_s);
 }
 
@@ -99,6 +101,12 @@ void ThreadedDisplayRefreshMonitor::invalidate()
         m_currentUpdate = m_currentUpdate.nextUpdate();
     }
     m_client = nullptr;
+}
+
+Seconds ThreadedDisplayRefreshMonitor::missedRefreshTime() const
+{
+    auto frameTime = 1_s / (m_targetRefreshRate / 1000.0);
+    return std::max(0_s, (MonotonicTime::now() - m_refreshTime) - frameTime);
 }
 
 // FIXME: Refactor to share more code with DisplayRefreshMonitor::displayLinkFired().

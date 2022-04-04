@@ -135,7 +135,7 @@ void LayerTreeHost::cancelPendingLayerFlush()
 
 void LayerTreeHost::layerFlushTimerFired()
 {
-    if (m_isSuspended || m_isWaitingForRenderer)
+    if (m_isSuspended || (m_isWaitingForRenderer && !m_compositor->lastFrameOverBudget()))
         return;
 
     if (!m_coordinator.rootCompositingLayer())
@@ -412,6 +412,10 @@ void LayerTreeHost::willRenderFrame()
 void LayerTreeHost::didRenderFrame()
 {
     m_surface->didRenderFrame();
+    if (m_compositor->lastFrameOverBudget() && !m_layerFlushTimer.isActive()) {
+        m_coordinator.forceFrameSync();
+        m_layerFlushTimer.startOneShot(0_s);
+    }
 }
 
 void LayerTreeHost::requestDisplayRefreshMonitorUpdate()
@@ -427,7 +431,8 @@ void LayerTreeHost::handleDisplayRefreshMonitorUpdate(bool hasBeenRescheduled)
 {
     // Call renderNextFrame. If hasBeenRescheduled is true, the layer flush will force a repaint
     // that will cause the display refresh notification to come.
-    renderNextFrame(hasBeenRescheduled);
+    if (!m_compositor->lastFrameOverBudget())
+        renderNextFrame(hasBeenRescheduled);
 }
 
 void LayerTreeHost::renderNextFrame(bool forceRepaint)
