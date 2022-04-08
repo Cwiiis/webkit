@@ -46,6 +46,7 @@
 #include "PageIdentifier.h"
 #include "PlatformEvent.h"
 #include "PlaybackTargetClientContextIdentifier.h"
+#include "ReducedResolutionSeconds.h"
 #include "ReferrerPolicy.h"
 #include "RegistrableDomain.h"
 #include "RenderPtr.h"
@@ -1125,7 +1126,7 @@ public:
     void suspendScriptedAnimationControllerCallbacks();
     void resumeScriptedAnimationControllerCallbacks();
 
-    void serviceRequestAnimationFrameCallbacks();
+    void serviceRequestAnimationFrameCallbacks(std::optional<ReducedResolutionSeconds> = std::nullopt);
     void serviceRequestVideoFrameCallbacks();
 
     void windowScreenDidChange(PlatformDisplayID);

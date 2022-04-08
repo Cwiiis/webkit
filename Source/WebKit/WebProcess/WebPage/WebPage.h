@@ -410,7 +410,7 @@ public:
 #endif
 
     void layoutIfNeeded();
-    void updateRendering();
+    void updateRendering(std::optional<MonotonicTime> = std::nullopt);
     bool shouldTriggerRenderingUpdate(unsigned rescheduledRenderingUpdateCount) const;
     void finalizeRenderingUpdate(OptionSet<WebCore::FinalizeRenderingUpdateFlags>);
 

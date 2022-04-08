@@ -4403,9 +4403,9 @@ void WebPage::layoutIfNeeded()
     m_page->layoutIfNeeded();
 }
     
-void WebPage::updateRendering()
+void WebPage::updateRendering(std::optional<MonotonicTime> timestamp)
 {
-    m_page->updateRendering();
+    m_page->updateRendering(timestamp);
 }
 
 void WebPage::didUpdateRendering()

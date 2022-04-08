@@ -105,6 +105,7 @@
 #include "PageGroup.h"
 #include "PageOverlayController.h"
 #include "PaymentCoordinator.h"
+#include "Performance.h"
 #include "PerformanceLogging.h"
 #include "PerformanceLoggingClient.h"
 #include "PerformanceMonitor.h"
@@ -1595,9 +1596,9 @@ unsigned Page::renderingUpdateCount() const
 }
 
 // https://html.spec.whatwg.org/multipage/webappapis.html#update-the-rendering
-void Page::updateRendering()
+void Page::updateRendering(std::optional<MonotonicTime> timestamp)
 {
-    LOG(EventLoop, "Page %p updateRendering() - re-entering %d", this, !m_renderingUpdateRemainingSteps.isEmpty());
+    LOG(EventLoop, "Page %p updateRendering(%d) - re-entering %d", this, timestamp ? timestamp->secondsSinceEpoch().millisecondsAs<int>() : -1, !m_renderingUpdateRemainingSteps.isEmpty());
 
     if (m_renderingUpdateRemainingSteps.isEmpty())
         m_unfulfilledRequestedSteps = { };
@@ -1665,8 +1666,11 @@ void Page::updateRendering()
         document.serviceRequestVideoFrameCallbacks();
     });
 
-    runProcessingStep(RenderingUpdateStep::AnimationFrameCallbacks, [] (Document& document) {
-        document.serviceRequestAnimationFrameCallbacks();
+    runProcessingStep(RenderingUpdateStep::AnimationFrameCallbacks, [&timestamp] (Document& document) {
+        std::optional<ReducedResolutionSeconds> rafTime;
+        if (timestamp)
+            rafTime = document.domWindow()->performance().relativeTimeFromTimeOriginInReducedResolutionSeconds(*timestamp);
+        document.serviceRequestAnimationFrameCallbacks(rafTime);
     });
 
     layoutIfNeeded();

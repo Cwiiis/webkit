@@ -6799,10 +6799,10 @@ void Document::resumeScriptedAnimationControllerCallbacks()
         m_scriptedAnimationController->resume();
 }
 
-void Document::serviceRequestAnimationFrameCallbacks()
+void Document::serviceRequestAnimationFrameCallbacks(std::optional<ReducedResolutionSeconds> timestamp)
 {
     if (m_scriptedAnimationController && domWindow())
-        m_scriptedAnimationController->serviceRequestAnimationFrameCallbacks(domWindow()->frozenNowTimestamp());
+        m_scriptedAnimationController->serviceRequestAnimationFrameCallbacks(timestamp ? *timestamp : domWindow()->frozenNowTimestamp());
 }
 
 void Document::serviceRequestVideoFrameCallbacks()

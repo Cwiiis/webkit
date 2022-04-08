@@ -111,6 +111,11 @@ DOMHighResTimeStamp Performance::relativeTimeFromTimeOriginInReducedResolution(M
     return reduceTimeResolution(seconds).milliseconds();
 }
 
+ReducedResolutionSeconds Performance::relativeTimeFromTimeOriginInReducedResolutionSeconds(MonotonicTime timestamp) const
+{
+    return reduceTimeResolution(timestamp - m_timeOrigin);
+}
+
 PerformanceNavigation* Performance::navigation()
 {
     if (!is<Document>(scriptExecutionContext()))

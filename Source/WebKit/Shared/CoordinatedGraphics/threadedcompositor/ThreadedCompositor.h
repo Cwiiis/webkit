@@ -78,6 +78,7 @@ public:
     void frameComplete();
     bool lastFrameOverBudget() const { return m_frameOverBudget; }
     void targetRefreshRateDidChange(unsigned);
+    MonotonicTime lastFrameTime() const { return m_lastFrameTime; }
 
     void suspend();
     void resume();
@@ -117,6 +118,8 @@ private:
     } m_attributes;
 
     Ref<ThreadedDisplayRefreshMonitor> m_displayRefreshMonitor;
+
+    MonotonicTime m_lastFrameTime;
 };
 
 } // namespace WebKit

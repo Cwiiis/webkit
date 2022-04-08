@@ -110,6 +110,7 @@ public:
     static Seconds reduceTimeResolution(Seconds);
 
     DOMHighResTimeStamp relativeTimeFromTimeOriginInReducedResolution(MonotonicTime) const;
+    ReducedResolutionSeconds relativeTimeFromTimeOriginInReducedResolutionSeconds(MonotonicTime) const;
 
     ScriptExecutionContext* scriptExecutionContext() const final { return ContextDestructionObserver::scriptExecutionContext(); }
 

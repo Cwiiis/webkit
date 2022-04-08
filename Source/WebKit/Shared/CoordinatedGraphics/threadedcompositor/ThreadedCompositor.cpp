@@ -57,6 +57,7 @@ ThreadedCompositor::ThreadedCompositor(Client& client, ThreadedDisplayRefreshMon
     , m_paintFlags(paintFlags)
     , m_compositingRunLoop(makeUnique<CompositingRunLoop>([this] { renderLayerTree(); }))
     , m_displayRefreshMonitor(ThreadedDisplayRefreshMonitor::create(displayID, displayRefreshMonitorClient))
+    , m_lastFrameTime(MonotonicTime::now())
 {
     {
         // Locking isn't really necessary here, but it's done for consistency.
@@ -257,6 +258,9 @@ void ThreadedCompositor::renderLayerTree()
     } else
         m_frameOverBudget = false;
 
+    auto frameTime = 1_s / (m_displayRefreshMonitor->targetRefreshRate() / 1000.0);
+    m_lastFrameTime += frameTime * floor(1.0 + (missedRefreshTime / frameTime));
+
     if (m_scene->isActive())
         m_client.didRenderFrame();
 }
@@ -323,6 +327,7 @@ RefPtr<WebCore::DisplayRefreshMonitor> ThreadedCompositor::displayRefreshMonitor
 void ThreadedCompositor::frameComplete()
 {
     ASSERT(!RunLoop::isMain());
+    m_lastFrameTime = MonotonicTime::now();
     sceneUpdateFinished();
 }
 

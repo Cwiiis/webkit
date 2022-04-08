@@ -154,7 +154,7 @@ void LayerTreeHost::layerFlushTimerFired()
     flags.add(FinalizeRenderingUpdateFlags::ApplyScrollingTreeLayerPositions);
 #endif
 
-    bool didSync = m_coordinator.flushPendingLayerChanges(flags);
+    bool didSync = m_coordinator.flushPendingLayerChanges(flags, m_compositor->lastFrameTime());
 
 #if PLATFORM(GTK)
     // If we have an active transient zoom, we want the zoom to win over any changes

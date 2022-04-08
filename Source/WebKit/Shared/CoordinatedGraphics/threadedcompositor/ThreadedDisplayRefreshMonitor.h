@@ -56,6 +56,7 @@ public:
     Seconds missedRefreshTime() const;
 
     void setTargetRefreshRate(unsigned);
+    unsigned targetRefreshRate() const { return m_targetRefreshRate; }
 
 private:
     ThreadedDisplayRefreshMonitor(WebCore::PlatformDisplayID, Client&);

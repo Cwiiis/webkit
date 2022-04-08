@@ -83,7 +83,7 @@ public:
 
     void forceFrameSync() { m_shouldSyncFrame = true; }
 
-    bool flushPendingLayerChanges(OptionSet<WebCore::FinalizeRenderingUpdateFlags>);
+    bool flushPendingLayerChanges(OptionSet<WebCore::FinalizeRenderingUpdateFlags>, std::optional<MonotonicTime> = std::nullopt);
     WebCore::CoordinatedGraphicsState& state() { return m_state; }
 
     void syncDisplayState();

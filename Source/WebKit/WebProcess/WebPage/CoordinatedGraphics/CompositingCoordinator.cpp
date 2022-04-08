@@ -115,13 +115,13 @@ void CompositingCoordinator::sizeDidChange(const IntSize& newSize)
     notifyFlushRequired(m_rootLayer.get());
 }
 
-bool CompositingCoordinator::flushPendingLayerChanges(OptionSet<FinalizeRenderingUpdateFlags> flags)
+bool CompositingCoordinator::flushPendingLayerChanges(OptionSet<FinalizeRenderingUpdateFlags> flags, std::optional<MonotonicTime> timestamp)
 {
     SetForScope protector(m_isFlushingLayerChanges, true);
 
     initializeRootCompositingLayerIfNeeded();
 
-    m_page.updateRendering();
+    m_page.updateRendering(timestamp);
     m_page.flushPendingEditorStateUpdate();
 
     m_rootLayer->flushCompositingStateForThisLayerOnly();
